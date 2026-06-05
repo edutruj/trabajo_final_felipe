@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Portal de Reclutamiento</title>
-    <!-- PWA para instalar como app -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * {
             margin: 0;
@@ -90,9 +88,6 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        button:active {
-            transform: translateY(0);
-        }
         button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -142,14 +137,6 @@
             color: rgba(255,255,255,0.7);
             font-size: 12px;
         }
-        @media (max-width: 480px) {
-            .card {
-                padding: 24px 20px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -165,7 +152,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>👤 Nombre completo *</label>
+                    <label>Nombre completo *</label>
                     <input type="text" id="name" required placeholder="Tu nombre completo">
                 </div>
                 
@@ -191,11 +178,11 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>Mensaje adicional (opcional)</label>
+                    <label> Mensaje adicional (opcional)</label>
                     <textarea id="message" rows="3" placeholder="Cuéntanos por qué eres el candidato ideal..."></textarea>
                 </div>
                 
-                <button type="submit" id="submitBtn">Enviar postulación</button>
+                <button type="submit" id="submitBtn"> Enviar postulación</button>
             </form>
             
             <div id="status" class="status"></div>
@@ -213,10 +200,10 @@
     </div>
 
     <script>
-       
+        
         const WEBHOOK_URL = 'https://teresita-mouill-unpossessively.ngrok-free.dev/webhook/candidato';
         
-        // PWA - Instalación como app
+        
         let deferredPrompt;
         
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -282,38 +269,39 @@
                         cv_base64: base64File,
                         cv_filename: cvFile.name,
                         cv_mimetype: cvFile.type,
-                        mensaje: document.getElementById('message').value,
+                        mensaje_adicional: document.getElementById('message').value,
                         fecha: new Date().toISOString()
                     };
                     
                     try {
                         const response = await fetch(WEBHOOK_URL, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json'
-                                     'ngrok-skip-browser-warning': 'true'  
-                                },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'ngrok-skip-browser-warning': 'true'
+                            },
                             body: JSON.stringify(payload)
                         });
-                        
-                        const result = await response.json();
                         
                         if (response.ok) {
                             statusDiv.className = 'status success';
                             statusDiv.innerHTML = `
-                                <strong>¡Postulación enviada!</strong><br>
+                                <strong>¡Postulación enviada con éxito!</strong><br><br>
                                 Recibirás los resultados en <strong>${email}</strong><br>
-                                También te notificaremos por Telegram si nos proporcionaste tu número.
+                                También te notificaremos por Telegram si nos proporcionaste tu número.<br><br>
+                                Nuestro equipo evaluará tu perfil y te contactará pronto.
                             `;
                             document.getElementById('applicationForm').reset();
                         } else {
+                            const result = await response.json();
                             throw new Error(result.error || 'Error al enviar');
                         }
                     } catch (err) {
                         statusDiv.className = 'status error';
-                        statusDiv.innerHTML = `Error: ${err.message}. Intenta nuevamente.`;
+                        statusDiv.innerHTML = ` Error: ${err.message}.<br>Intenta nuevamente o contacta con nosotros.`;
                     } finally {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Enviar postulación';
+                        submitBtn.textContent = ' Enviar postulación';
                     }
                 };
                 
@@ -321,9 +309,9 @@
                 
             } catch (error) {
                 statusDiv.className = 'status error';
-                statusDiv.innerHTML = `Error: ${error.message}`;
+                statusDiv.innerHTML = ` Error: ${error.message}`;
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar postulación';
+                submitBtn.textContent = ' Enviar postulación';
             }
         });
     </script>
